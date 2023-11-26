@@ -21,10 +21,11 @@ namespace WwiseBankIDChange
             {
                 foreach (string arg in args)
                 {
-                    /* if (arg.Contains("--ME2"))
+                    // detection is automatic now - nevertheless override is allowed
+                    if (arg.Contains("--ME2"))
                         Game = EGame.ME2;
                     else if (arg.Contains("--LE2"))
-                        Game = EGame.LE2; */ // detection is auto now
+                        Game = EGame.LE2;
                     if (arg.Contains("--ChangeFilesID"))
                         ChangeFilesID = true;
                     else if (arg.Contains("--DontChangeFilesID"))
@@ -77,19 +78,20 @@ namespace WwiseBankIDChange
             #endregion
             #region ReadAudioFilesIDs
             int FilesCount = 0;
-            if (ChangeFilesID)
+            long StartPosFiles = FindPosition(stream, StartBytesFiles);
+            // if the file header is not found, this bank contains no audio files (eg. a streaming bannk)
+            // do not change file IDs in this case
+            if (ChangeFilesID && StartPosFiles != -1)
             {
                 Console.WriteLine("Reading audio files IDs");
 
-                long StartPosFiles = FindPosition(stream, StartBytesFiles);
                 Console.WriteLine($"Start at {StartPosFiles}");
                 binReader.BaseStream.Seek(StartPosFiles, SeekOrigin.Begin);
                 binReader.ReadInt32(); // section header itself, skip
                 binReader.ReadInt32(); // size in bytes, skip
 
-                // there is no lenght property, so we will scan data until we hit the next section
+                // there is no length property, so we will scan data until we hit the next section
                 const Int32 EndSection = 0x41544144;
-                // const Int32 EndSection = 0x44415441;
                 while (true)
                 {
                     int x = binReader.ReadInt32();
@@ -115,8 +117,8 @@ namespace WwiseBankIDChange
             Console.WriteLine($"Start at {StartPos}");
 
             binReader.BaseStream.Seek(StartPos, SeekOrigin.Begin);
-            binReader.ReadInt32(); //hirc header itself, skip
-            binReader.ReadInt32(); //lenght in bytes, skip
+            binReader.ReadInt32(); // hirc header itself, skip
+            binReader.ReadInt32(); // length in bytes, skip
             int ObjectsAmount = binReader.ReadInt32();
             Console.WriteLine($"We have {ObjectsAmount} objects");
             int i = 0;
@@ -192,6 +194,7 @@ namespace WwiseBankIDChange
             Console.WriteLine("     In case it is skipped, the default path is \"source.bin\"");
             Console.WriteLine("     The file should be a binary data export of WwiseBank you want to edit");
             Console.WriteLine("  -- Other parms (can be placed anywhere):");
+            Console.WriteLine("     (correct parms are attempted to be chosen automatically; those work as overrides)");
             Console.WriteLine("      [--ME2] or [--LE2]: specify the game (bank format is different)");
             Console.WriteLine("      [--ChangeFilesID] or [--DontChangeFilesID]:");
             Console.WriteLine("            Whether or not to edit wwise sound files IDs.");
