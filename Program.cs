@@ -175,8 +175,9 @@ namespace WwiseBankIDChange
             Console.CursorVisible = true;
             Console.WriteLine("Replaced IDs");
             string FinalDiff = DiffSB.ToString();
-            File.WriteAllText("Diff results.txt", FinalDiff);
-            File.WriteAllBytes("new bank.bin", NewFile);
+            string BaseOutputDir = new FileInfo(sourceFile).Directory.FullName;
+            File.WriteAllText(BaseOutputDir + "\\Diff results.txt", FinalDiff);
+            File.WriteAllBytes(BaseOutputDir + "\\new bank.bin", NewFile);
             Console.WriteLine("Files saved.");
             Console.WriteLine("Look at the <Diff results.txt> file to update your Event IDs to new values.");
 
@@ -190,17 +191,17 @@ namespace WwiseBankIDChange
             Console.WriteLine("   As events are referred by ID, this is needed");
             Console.WriteLine("   when replacing sound effects to avoid overriding vanilla sounds");
             Console.WriteLine("============== USAGE ==============");
-            Console.WriteLine("  -- File path as the first paremeter");
+            Console.WriteLine("  -- File path as the first argument");
             Console.WriteLine("     In case it is skipped, the default path is \"source.bin\"");
             Console.WriteLine("     The file should be a binary data export of WwiseBank you want to edit");
-            Console.WriteLine("  -- Other parms (can be placed anywhere):");
-            Console.WriteLine("     (correct parms are attempted to be chosen automatically; those work as overrides)");
+            Console.WriteLine("  -- Other args (can be placed anywhere):");
+            Console.WriteLine("     (correct args are attempted to be chosen automatically; those can be used as overrides)");
             Console.WriteLine("      [--ME2] or [--LE2]: specify the game (bank format is different)");
             Console.WriteLine("      [--ChangeFilesID] or [--DontChangeFilesID]:");
             Console.WriteLine("            Whether or not to edit wwise sound files IDs.");
             Console.WriteLine("");
-            Console.WriteLine("  -- Output: new bank.bin file with edited data");
-            Console.WriteLine("     created in the executable directory");
+            Console.WriteLine("  -- Output: <new bank.bin> file with edited data");
+            Console.WriteLine("     created in the directory of source file.");
             Console.WriteLine("  -- After running program, look into <Diff results.txt> file");
             Console.WriteLine("     to update your Event IDs to new values.");
         }
